@@ -242,6 +242,7 @@ em{font-style:italic;}
 }
 .portrait img{
   width:100%;
+  height:auto;           /* 有 width/height 属性防抖动，必须显式 auto，否则被属性高度拉长 */
   /* 透明抠像：白裙与纸白底同色，用两层极淡的克莱因蓝投影勾出轮廓，避免"只剩一个头" */
   filter:drop-shadow(0 18px 34px rgba(0,47,167,.10)) drop-shadow(0 2px 6px rgba(0,47,167,.06));
   animation:floaty 10s ease-in-out infinite;

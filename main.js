@@ -460,6 +460,30 @@
     });
   }
 
+  /* ---------- hero 光束（SideRays 原生移植） ---------- */
+  const raysHost = document.querySelector('[data-rays]');
+  if (raysHost && typeof window.createSideRays === 'function') {
+    window.createSideRays(raysHost, {
+      rayColor1: '#002FA7',
+      rayColor2: '#2F5BE0',
+      blend: 0.2,
+      origin: 'top-right',
+      speed: 1.6,
+      intensity: 2.0,
+      spread: 1.7,
+      density: 12,
+      sharpness: 0.78,
+      falloff: 1.9,
+      glow: 0.18,
+      dust: 0.12,
+      followMouse: true,
+      mouseInfluence: 0.35,
+      lightMode: true,
+      opacity: 0.55,
+      intro: true
+    });
+  }
+
   /* ---------- year ---------- */
   const y = document.querySelector('.footer .mono');
   if (y) y.textContent = `© ${new Date().getFullYear()} Ziyue Zhang · 张子玥`;

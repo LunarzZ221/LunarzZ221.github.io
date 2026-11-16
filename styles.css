@@ -126,7 +126,23 @@ em{font-style:italic;}
   position:relative;
   overflow:hidden;
 }
+/* 蓝色光束层：压在内容下面，鼠标交互由 window 级监听实现，容器本身不吃事件
+   注意：side-rays.js 会往容器上补 `.side-rays`（自带 position:relative/height:100%），
+   所以这里必须用 `.hero .hero-rays` 两级选择器压过它，否则会被改成 0 高 */
+.hero .hero-rays{
+  position:absolute;inset:0;
+  width:auto;height:auto;
+  z-index:0;
+  pointer-events:none;
+}
+/* SideRays 容器（side-rays.js 创建 canvas） */
+.side-rays{position:relative;width:100%;height:100%;overflow:hidden;pointer-events:none;}
+.side-rays__canvas{position:absolute;inset:0;display:block;width:100%;height:100%;}
+/* 窄屏时人像顶到上方、光束会被拉成大片斜纹，压暗到只留一点空气 */
+@media (max-width:760px){ .hero .hero-rays{opacity:.45;} }
+@media (max-width:520px){ .hero .hero-rays{opacity:.32;} }
 .hero-grid{
+  position:relative;z-index:1;
   flex:1;
   display:grid;
   grid-template-columns:minmax(0,1fr) minmax(300px,430px);
@@ -256,7 +272,7 @@ em{font-style:italic;}
 .hero-link:hover{color:var(--klein);border-color:var(--klein);}
 .hero-link:hover span{transform:translate(2px,-2px);}
 
-.hero-foot{display:flex;align-items:center;gap:18px;}
+.hero-foot{position:relative;z-index:2;display:flex;align-items:center;gap:18px;}
 .hero-line{flex:1;height:1px;background:var(--rule);}
 .hero-foot .mono{font-size:9.5px;letter-spacing:.22em;}
 
@@ -689,7 +705,7 @@ em{font-style:italic;}
   max-width:330px;padding-bottom:8px;flex-shrink:0;
   display:flex;flex-direction:column;align-items:flex-start;gap:16px;
 }
-.beyond-stats{display:none;gap:36px;margin-top:18px;}
+.beyond-stats{display:flex;gap:36px;margin-top:18px;}
 .b-stat b{
   display:block;font-family:var(--serif);font-size:32px;font-weight:400;line-height:1;
   font-feature-settings:"lnum" 1;
@@ -731,6 +747,7 @@ em{font-style:italic;}
 .xhs-card::before{
   content:attr(data-frame);position:absolute;top:12px;left:14px;z-index:5;
   font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:rgba(255,255,255,.82);
+  text-shadow:0 1px 6px rgba(20,20,20,.5);
 }
 .xhs-card--more::before{color:rgba(255,255,255,.4);}
 .xhs-cover{position:relative;aspect-ratio:3/4;overflow:hidden;background:var(--paper-warm);}
@@ -751,9 +768,18 @@ em{font-style:italic;}
 }
 .xhs-title{
   font-size:13px;font-weight:500;line-height:1.55;color:var(--ink);
+  min-height:40px;
   overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
 }
 .xhs-title em{font-style:normal;color:var(--klein);}
+.xhs-text{display:flex;flex-direction:column;gap:5px;min-width:0;flex:1 1 auto;}
+.xhs-meta{
+  display:flex;align-items:center;gap:5px;
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;
+  color:rgba(26,26,26,.42);
+}
+.xhs-meta b{font-weight:400;color:rgba(26,26,26,.6);}
+.xhs-heart{color:var(--klein);font-size:10px;line-height:1;opacity:.8;}
 .xhs-go{flex-shrink:0;font-family:var(--mono);font-size:11px;color:var(--mist);}
 .xhs-progress{margin-top:22px;height:2px;border-radius:2px;background:rgba(26,26,26,.06);overflow:hidden;}
 .xhs-progress span{

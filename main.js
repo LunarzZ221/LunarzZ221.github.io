@@ -337,6 +337,129 @@
     });
   }
 
+  /* ---------- About · 打字机动效 ---------- */
+  /* 每个字包一层 <span>，未打出来的先透明；光标插在「下一个待打的字」前面，
+     所以行高、断行都由常排的字符撑着，打字过程中不会跳版 */
+  const typeEls = [...document.querySelectorAll('[data-type]')];
+  if (typeEls.length) {
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const units = [];
+
+    const splitChars = (el) => {
+      const chars = [];
+      const walk = (node) => {
+        [...node.childNodes].forEach((child) => {
+          if (child.nodeType === 3) {
+            const frag = document.createDocumentFragment();
+            [...child.nodeValue].forEach((ch) => {
+              const span = document.createElement('span');
+              span.className = 'tw';
+              span.textContent = ch === ' ' ? '\u00a0' : ch;
+              frag.appendChild(span);
+              chars.push(span);
+            });
+            child.replaceWith(frag);
+          } else if (child.nodeType === 1) {
+            walk(child);
+          }
+        });
+      };
+      walk(el);
+      return chars;
+    };
+
+    typeEls.forEach((el) => {
+      const chars = splitChars(el);
+      if (!chars.length) return;
+      el.classList.add('is-typing');
+      const caret = document.createElement('span');
+      caret.className = 'tw-caret';
+      chars.forEach((c) => {
+        c.style.opacity = '0';
+      });
+      units.push({ el, chars, caret, speed: Number(el.dataset.type) || 14 });
+    });
+
+    const play = async () => {
+      const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+      for (let u = 0; u < units.length; u++) {
+        const unit = units[u];
+        const { chars, caret } = unit;
+        chars[0].before(caret);
+        for (let i = 0; i < chars.length; i++) {
+          chars[i].style.opacity = '1';
+          chars[i].after(caret);
+          /* 中文标点后稍作停顿，读起来更像在敲 */
+          const ch = chars[i].textContent;
+          const pause = /[，。、：；？！]/.test(ch) ? 150 : 0;
+          await sleep(unit.speed + pause + Math.random() * unit.speed * 0.6);
+        }
+        unit.el.classList.remove('is-typing');
+        if (u < units.length - 1) {
+          caret.remove();
+          await sleep(220);
+        } else {
+          await sleep(2200);
+          caret.classList.add('tw-caret--out');
+          await sleep(600);
+          caret.remove();
+        }
+      }
+    };
+
+    const startType = () => {
+      if (reduce) {
+        units.forEach(({ el, chars, caret }) => {
+          chars.forEach((c) => (c.style.opacity = '1'));
+          el.classList.remove('is-typing');
+          caret.remove();
+        });
+        return;
+      }
+      play();
+    };
+
+    const aboutCopy = document.querySelector('.about-copy');
+    if (aboutCopy && 'IntersectionObserver' in window && !isStatic) {
+      const to = new IntersectionObserver(
+        (entries) => {
+          if (entries.some((e) => e.isIntersecting)) {
+            to.disconnect();
+            startType();
+          }
+        },
+        { rootMargin: '0px 0px -14% 0px', threshold: 0.2 }
+      );
+      to.observe(aboutCopy);
+    } else {
+      startType();
+    }
+  }
+
+  /* ---------- Contact · 蓝色像素雪花（PixelSnow，WebGL2） ---------- */
+  const snowHost = document.querySelector('[data-snow]');
+  if (snowHost && typeof window.createPixelSnow === 'function') {
+    window.createPixelSnow(snowHost, {
+      color: '#002FA7',
+      variant: 'snowflake',
+      density: 0.2,
+      speed: 0.45,
+      wind: 0.14,
+      sway: 0.5,
+      flakeSize: 0.45,
+      pixelSize: 2,
+      depth: 0.75,
+      brightness: 1,
+      glow: 0.9,
+      twinkle: 0.5,
+      fade: 0.3,
+      opacity: 0.85,
+      lightMode: true,
+      mouseInteraction: true,
+      intro: true
+    });
+  }
+
   /* ---------- year ---------- */
   const y = document.querySelector('.footer .mono');
   if (y) y.textContent = `© ${new Date().getFullYear()} Ziyue Zhang · 张子玥`;

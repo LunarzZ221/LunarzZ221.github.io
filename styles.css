@@ -301,6 +301,18 @@ em{font-style:italic;}
   font-weight:500;color:var(--ink);
   background:linear-gradient(transparent 62%,rgba(0,47,167,.11) 62%);
 }
+/* 打字机：逐字出现 + 蓝色光标。字宽靠常排字符撑着，打字时不跳版 */
+/* 打字段落里的 <b> 有底部高亮，字还没打出来时高亮会浮在空中，所以先关掉、打完再打开 */
+[data-type].is-typing b{background-image:none;}
+.tw{white-space:pre;transition:opacity .07s linear;}
+.tw-caret{
+  display:inline-block;width:0;height:1.02em;
+  vertical-align:-.14em;
+  border-left:1.5px solid var(--klein);
+  animation:tw-blink 1.05s step-end infinite;
+}
+@keyframes tw-blink{0%,54%{opacity:1}55%,100%{opacity:0}}
+.tw-caret--out{animation:none;opacity:0;}
 .ledger{
   border-top:1px solid var(--ink);
   padding-top:16px;
@@ -587,62 +599,63 @@ em{font-style:italic;}
 /* 背面没有正文的卡（武汉大学交换）：整组信息居中，读起来像一张名片而不是缺了段落 */
 .fan-flip-back.is-bare .fan-location{margin-top:0;}
 
-/* ---- 表盘 ---- */
+/* ---- 表盘（半径 250，整体是原尺寸的一半） ---- */
 .dial-wrapper{position:relative;z-index:30;margin-top:6px;}
 .dial-bottom{display:flex;flex-direction:column;align-items:center;gap:16px;}
-/* 高度按「最外侧刻度(56°)的弧深 + 余量」给足，否则首/末两项的年份会被裁掉 */
-.dial-clock{position:relative;width:100%;height:292px;overflow:hidden;}
+/* 高度 = 弧顶留白(40) + 可见弧深(117)；留白要够放下「2020」的标签+刻度条，否则被 overflow 裁掉 */
+.dial-clock{position:relative;width:100%;height:157px;overflow:hidden;}
 .dial-arc-center{
-  position:absolute;top:58px;left:50%;
-  width:1000px;height:1000px;transform:translateX(-50%);
+  position:absolute;top:40px;left:50%;
+  width:500px;height:500px;transform:translateX(-50%);
   pointer-events:none;
 }
 .dial-arc{
   position:absolute;inset:0;border-radius:50%;
-  border:1.5px solid rgba(26,26,26,.07);
+  border:1px solid rgba(26,26,26,.08);
   transition:transform .9s cubic-bezier(.22,.72,.18,1);
   pointer-events:auto;
 }
 .dial-arc-outer{
-  position:absolute;top:56px;left:50%;
-  width:1004px;height:1004px;transform:translateX(-50%);
-  border-radius:50%;border:2px solid rgba(0,47,167,.035);
+  position:absolute;top:39px;left:50%;
+  width:502px;height:502px;transform:translateX(-50%);
+  border-radius:50%;border:1px solid rgba(0,47,167,.04);
   pointer-events:none;
 }
 .dial-tick{
   position:absolute;top:0;left:50%;
-  width:1px;height:12px;margin-left:-.5px;
-  background:rgba(26,26,26,.07);
-  transform-origin:.5px 500px;
+  width:1px;height:7px;margin-left:-.5px;
+  background:rgba(26,26,26,.08);
+  transform-origin:.5px 250px;
 }
 .dial-markers{position:absolute;inset:0;pointer-events:none;}
 .dial-marker{
   position:absolute;top:50%;left:50%;
-  width:64px;
-  display:flex;flex-direction:column;align-items:center;gap:5px;
+  width:56px;
+  display:flex;flex-direction:column;align-items:center;gap:4px;
   background:none;border:0;padding:0;cursor:pointer;
   pointer-events:auto;
   transition:transform .7s cubic-bezier(.22,.72,.18,1);
 }
 .dial-marker-year{
-  font-family:var(--mono);font-size:11.5px;font-weight:500;letter-spacing:.04em;
+  font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.04em;
+  line-height:1.1;
   color:rgba(26,26,26,.24);white-space:nowrap;
   transition:color .45s ease,font-size .45s ease;
 }
-.dial-marker-bar{width:2px;height:22px;border-radius:1px;background:rgba(26,26,26,.09);transition:all .45s ease;}
+.dial-marker-bar{width:1.5px;height:13px;border-radius:1px;background:rgba(26,26,26,.09);transition:all .45s ease;}
 .dial-marker:hover:not(.dial-marker--active) .dial-marker-year{color:rgba(0,47,167,.55);}
 .dial-marker:hover:not(.dial-marker--active) .dial-marker-bar{background:rgba(0,47,167,.25);}
-.dial-marker--active .dial-marker-year{color:var(--klein);font-size:14.5px;font-weight:600;}
-.dial-marker--active .dial-marker-bar{height:36px;background:var(--klein);box-shadow:0 0 10px rgba(0,47,167,.25);}
+.dial-marker--active .dial-marker-year{color:var(--klein);font-size:12.5px;font-weight:600;}
+.dial-marker--active .dial-marker-bar{height:20px;background:var(--klein);box-shadow:0 0 8px rgba(0,47,167,.22);}
 
 .dial-pointer{
   position:absolute;bottom:0;left:50%;transform:translateX(-50%);
   display:flex;flex-direction:column-reverse;align-items:center;
   z-index:10;pointer-events:none;
 }
-.dial-pointer-dot{width:10px;height:10px;border-radius:50%;background:var(--klein);box-shadow:0 0 0 3px rgba(0,47,167,.1),0 0 14px rgba(0,47,167,.16);}
-.dial-pointer-needle{width:1.5px;height:172px;background:linear-gradient(to top,var(--klein),rgba(0,47,167,.06));}
-.dial-pointer-arrow{width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-bottom:7px solid var(--klein);}
+.dial-pointer-dot{width:8px;height:8px;border-radius:50%;background:var(--klein);box-shadow:0 0 0 2px rgba(0,47,167,.1),0 0 10px rgba(0,47,167,.16);}
+.dial-pointer-needle{width:1px;height:86px;background:linear-gradient(to top,var(--klein),rgba(0,47,167,.06));}
+.dial-pointer-arrow{width:0;height:0;border-left:3px solid transparent;border-right:3px solid transparent;border-bottom:6px solid var(--klein);}
 
 .dial-nav{display:flex;align-items:center;gap:26px;}
 .dial-nav-btn{
@@ -759,54 +772,65 @@ em{font-style:italic;}
 
 
 /* ===================== CONTACT ===================== */
+/* 和其他区同一张纸，靠蓝色像素雪花做氛围；文字全部回到深墨色 */
 .contact{
-  background:var(--klein);
-  color:#fff;
-  padding:120px var(--pad) 0;
+  background:var(--paper);
+  color:var(--ink);
+  padding:104px var(--pad) 0;
+  border-top:1px solid var(--rule);
   position:relative;
   overflow:hidden;
 }
-.contact-inner{position:relative;}
+/* 雪花层：铺标题这一段，底部靠 fade 渐隐，Toolkit 的小字不被压住 */
+.contact-snow{
+  position:absolute;left:0;right:0;top:0;
+  height:clamp(420px,72vh,700px);
+  z-index:0;
+  pointer-events:none;
+}
+.pixel-snow-container{position:relative;width:100%;height:100%;overflow:hidden;}
+.pixel-snow-canvas{position:absolute;inset:0;display:block;width:100%;height:100%;}
+.contact-inner{position:relative;z-index:1;}
 .seal{
   position:absolute;right:0;top:6px;
   width:250px;height:250px;
-  opacity:.7;
+  opacity:.55;
   pointer-events:none;
 }
 .seal svg{width:100%;height:100%;overflow:visible;}
 .seal text{
   font-family:var(--mono);font-size:8.5px;letter-spacing:2.2px;
-  fill:#AFC2FF;text-transform:uppercase;
+  fill:rgba(0,47,167,.42);text-transform:uppercase;
 }
 .seal-spin{
   transform-origin:120px 120px;
   animation:spin 40s linear infinite;
 }
 @keyframes spin{to{transform:rotate(360deg);}}
-.contact-label{color:rgba(255,255,255,.55);}
+.contact-label{color:var(--mist);}
 .contact-title{
   font-family:var(--serif);font-weight:400;
   font-size:clamp(42px,6.6vw,96px);
   line-height:1.06;letter-spacing:-.02em;
   margin:26px 0 44px;
-  color:#fff;
+  color:var(--ink);
 }
-.contact-title em{color:#AFC2FF;}
+.contact-title em{color:var(--klein);}
 .contact-mail{
   display:inline-flex;align-items:center;gap:14px;
   font-family:var(--serif);font-size:clamp(22px,3vw,42px);
-  color:#fff;
-  border-bottom:1px solid rgba(255,255,255,.35);
+  color:var(--ink);
+  border-bottom:1px solid var(--rule);
   padding-bottom:6px;
   transition:color .35s ease,border-color .35s ease;
 }
 .contact-mail span{font-size:.7em;transition:transform .35s ease;}
-.contact-mail:hover{color:#AFC2FF;border-color:#AFC2FF;}
+.contact-mail:hover{color:var(--klein);border-color:var(--klein);}
 .contact-mail:hover span{transform:translate(4px,-4px);}
 
 /* ---- Toolkit 收在 Contact 尾部（不单独成节） ---- */
 .contact-toolkit{
-  border-top:1px solid rgba(255,255,255,.2);
+  border-top:1px solid var(--rule);
   margin-top:76px;
   padding-top:34px;
 }
@@ -817,25 +841,26 @@ em{font-style:italic;}
 }
 .ctk-col h4{
   font-family:var(--mono);font-size:9px;letter-spacing:.22em;
-  color:#AFC2FF;text-transform:uppercase;
+  color:var(--klein);text-transform:uppercase;
   margin:0;padding-bottom:11px;
-  border-bottom:1px solid rgba(255,255,255,.3);
+  border-bottom:1px solid var(--rule);
 }
 .ctk-col li{
-  font-size:12.5px;color:rgba(255,255,255,.74);
-  padding:8px 0;border-bottom:1px solid rgba(255,255,255,.1);
+  font-size:12.5px;color:var(--ink-2);
+  padding:8px 0;border-bottom:1px solid var(--rule-soft);
   transition:color .3s ease,padding-left .3s ease;
 }
-.ctk-col li:hover{color:#fff;padding-left:6px;}
+.ctk-col li:hover{color:var(--klein);padding-left:6px;}
 .footer{
+  position:relative;z-index:1;
   display:flex;align-items:center;justify-content:space-between;gap:20px;
   flex-wrap:wrap;
-  border-top:1px solid rgba(255,255,255,.2);
+  border-top:1px solid var(--rule);
   padding:22px 0 26px;
 }
-.footer .mono{font-size:9px;letter-spacing:.18em;color:rgba(255,255,255,.6);}
-.footer .top{color:rgba(255,255,255,.6);}
-.footer .top:hover{color:#fff;}
+.footer .mono{font-size:9px;letter-spacing:.18em;color:var(--mist);}
+.footer .top{color:var(--mist);}
+.footer .top:hover{color:var(--klein);}
 
 /* ===================== REVEAL ===================== */
 .reveal{
@@ -865,11 +890,11 @@ em{font-style:italic;}
   .wi-cells{grid-template-columns:repeat(2,minmax(0,1fr));gap:22px 26px;}
   .fan-stage{height:432px;}
   .fan-card-wrapper{width:238px;height:338px;margin-left:-119px;}
-  .dial-clock{height:240px;}
-  .dial-arc-center{top:50px;width:800px;height:800px;}
-  .dial-arc-outer{top:48px;width:804px;height:804px;}
-  .dial-tick{transform-origin:.5px 400px;}
-  .dial-pointer-needle{height:128px;}
+  .dial-clock{height:135px;}
+  .dial-arc-center{top:40px;width:400px;height:400px;}
+  .dial-arc-outer{top:39px;width:402px;height:402px;}
+  .dial-tick{transform-origin:.5px 200px;}
+  .dial-pointer-needle{height:64px;}
   .beyond-head{flex-direction:column;align-items:flex-start;gap:26px;}
   .beyond-aside{max-width:420px;}
   .ctk-grid{gap:0 34px;}
@@ -914,14 +939,14 @@ em{font-style:italic;}
   .fan-flip-back{padding:18px 16px;}
   .fan-flip-back h3{font-size:18px;}
   .fan-flip-back .description{font-size:10.5px;line-height:1.7;}
-  .dial-clock{height:210px;}
-  .dial-arc-center{top:64px;width:600px;height:600px;}
-  .dial-arc-outer{top:62px;width:604px;height:604px;}
-  .dial-tick{transform-origin:.5px 300px;}
-  .dial-marker-year{font-size:9.5px;}
-  .dial-marker--active .dial-marker-year{font-size:12.5px;}
-  .dial-marker--active .dial-marker-bar{height:30px;}
-  .dial-pointer-needle{height:82px;}
+  .dial-clock{height:107px;}
+  .dial-arc-center{top:34px;width:300px;height:300px;}
+  .dial-arc-outer{top:33px;width:302px;height:302px;}
+  .dial-tick{transform-origin:.5px 150px;}
+  .dial-marker-year{font-size:9px;}
+  .dial-marker--active .dial-marker-year{font-size:11.5px;}
+  .dial-marker--active .dial-marker-bar{height:16px;}
+  .dial-pointer-needle{height:41px;}
   .dial-nav{gap:14px;}
   .beyond-title{font-size:clamp(34px,10vw,46px);}
   .xhs-card{width:226px;}
@@ -968,14 +993,14 @@ em{font-style:italic;}
   .fan-flip-back .description{font-size:9.5px;line-height:1.58;}
   .fan-location{font-size:8px;padding-top:10px;}
   .flip-hint{font-size:7.5px;}
-  .dial-clock{height:168px;}
-  .dial-arc-center{top:54px;width:440px;height:440px;}
-  .dial-arc-outer{top:52px;width:444px;height:444px;}
-  .dial-tick{transform-origin:.5px 220px;}
-  .dial-marker-year{font-size:8.5px;}
-  .dial-marker--active .dial-marker-year{font-size:11px;}
-  .dial-marker--active .dial-marker-bar{height:24px;}
-  .dial-pointer-needle{height:54px;}
+  .dial-clock{height:91px;}
+  .dial-arc-center{top:34px;width:220px;height:220px;}
+  .dial-arc-outer{top:33px;width:222px;height:222px;}
+  .dial-tick{transform-origin:.5px 110px;}
+  .dial-marker-year{font-size:9px;}
+  .dial-marker--active .dial-marker-year{font-size:10.5px;}
+  .dial-marker--active .dial-marker-bar{height:12px;}
+  .dial-pointer-needle{height:27px;}
   .dial-nav{gap:10px;}
   .beyond-title{font-size:clamp(30px,9vw,38px);}
   .xhs-card{width:196px;}

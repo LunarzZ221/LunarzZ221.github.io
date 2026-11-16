@@ -14,7 +14,7 @@ site/
 ├── side-rays.js          首页蓝色光束（React Bits SideRays 的原生 JS 移植，WebGL2）
 ├── pixel-snow.js         Contact 蓝色像素雪花（PixelSnow 的原生 JS 移植，WebGL2）
 └── assets/
-    ├── portrait-fade.png 首屏人像（原图：背景减淡为纸色 + 四边羽化）
+    ├── portrait-cut.webp 首屏人像（蓝幕抠像，真透明底，底部渐隐）
     ├── cv.pdf            简历下载
     ├── favicon.svg       站点图标
     ├── experience/       经历卡片照片 exp-01.jpg … exp-05.jpg（已填）
@@ -65,10 +65,14 @@ site/
 
 ### 2. 首屏人像
 
-`portrait-fade.png` 是**原图直出**：没有抠图，而是把蓝幕背景按「蓝色度」判定后整体压向纸色 `#F5F5F4`，再做矩形羽化（左右 7.5%、上 4.5%、下 16%），所以图片边界与页面底色完全重合，看不出方框。
+`portrait-cut.webp` 是**真透明抠像**：原图是蓝幕拍摄照，用 `rembg`（isnet-general-use 模型）取出人物，再做蓝色溢色抑制 + 前景色反解，最后底部 14% 渐隐。透明底才能让首页蓝色光束从人像后面穿过去，而不是被一块浅灰方框挡住。
 
-- 生成脚本：仓库根目录 `fade.py`（换图后重跑一次即可）。
-- 换图时无需改代码，只要覆盖 `assets/portrait-fade.png`；若原图背景色差很大，重跑 `fade.py` 会重新做纸色对齐。
+- 为什么不用纯色键控：蓝幕有布纹、发丝和背景亮度接近，纯色阈值会啃掉发丝；模型抠像 + 溢色反解能保住发梢的半透明过渡
+- isnet 比 u2net_human_seg 好：u2net 在发梢留了一圈青绿色边，放大一眼可见
+- 生成脚本：仓库外的工作区根目录 `matte.py`（抠图）+ `fade3.py`（溢色抑制 / 反解 / 渐隐 / 导出 webp），源图 `portrait-src.jpg` 也在那里
+- 脚本环境：`.venv-matte`（onnxruntime **必须 1.20.1**，1.3x 在 Windows 上 import 就 segfault；numpy 需 `<2`，scipy `1.13.1`、numba `0.60.0`）
+- 图底没有背景，白裙子会和纸白页同色，所以 `.portrait img` 挂了两层极淡的克莱因蓝 `drop-shadow` 勾轮廓——别调重，一重就变成贴纸
+- 尺寸 900×1178，webp q92 ≈ 105KB（PNG 要 1.27MB）
 - 桌面端图右侧越出版心（`.hero-side` 的负 `margin-right`），移动端改为居中、完整显示。
 
 ### 3. 经历区（Experience）· 折扇 + 表盘
